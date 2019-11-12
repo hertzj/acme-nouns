@@ -12,6 +12,8 @@ const { Person, Place, Thing } = models;
 const PORT = 3000;
 const app = express();
 
+app.use(express.json()); // don't forget this for posts!! (and maybe puts)
+
 app.get('/', (req, res, next) => {
     res.sendFile(path.join(__dirname, './index.html'))
 });
@@ -34,6 +36,17 @@ app.get('/api/people', (req, res, next) => {
         res.send(persons)
     })
     .catch(e => console.log('error getting persons', e))
+});
+
+app.post('/api/people', (req, res, next) => {
+    Person.create(req.body)
+        .then(() => Person.findAll({
+            include: [Thing]
+        }))
+        .then(persons => {
+            res.send(persons)
+        })
+        .catch(e => console.log('error posting a person', e))
 });
 
 app.get('/api/things', (req, res, next) => {
